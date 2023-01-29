@@ -1,7 +1,3 @@
-import pandas as pd
-from census import Census
-from us import states
-from config import API_KEY
 import argparse
 from race_demographics import make_race_demographic_table
 
