@@ -22,6 +22,8 @@ def df_to_uscensus(
         table += f"|estyear={estimate_year}\n|estimate={estimate}\n"
         table += f'|estref=<ref name="acs{estimate_year}est">{{{{cite web|url=https://data.census.gov/table?g=1600000US{state_fips}{place_id}&y={estimate_year}|title=ACS Survey Population Estimate 2021}}}}</ref>\n'
     footnote = f'|footnote=US Census<ref name="DecennialCensus{year}">{{{{cite web|url={reference_url}.P1|title=Census of Population and Housing|publisher=Census.gov}}}}</ref>'
+    if hist_reference:
+        footnote += hist_reference
     table += footnote
     table += "\n}}"
     return table

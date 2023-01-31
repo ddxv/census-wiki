@@ -70,7 +70,7 @@ def open_args(args: dict) -> tuple[str, str]:
 
 def get_historical_pop(state_abbr, places: list, place_name: str):
     if state_abbr != "CA":
-        return pd.DataFrame()
+        return pd.DataFrame(), ""
     df = pd.read_excel("data/calhist2.xls", skiprows=6)
     match_based_on_user = df["Place/Town/City"].str.lower() == place_name.lower()
     match_based_on_cdp = df["Place/Town/City"].str.lower() == places[0][
@@ -88,7 +88,8 @@ def get_historical_pop(state_abbr, places: list, place_name: str):
         .reset_index(drop=True)
         .T.rename(columns={0: "Population"})
     )
-    reference = 'U.S Census 1880-1980,<ref name="1860Census">{{cite web|url=https://dof.ca.gov/reports/demographic-reports/|title=Population Totals by Township and Place for California Counties: 1860 to 1950|publisher=dof.ca.gov}}</ref>'
+    df["Population"] = df["Population"].astype(int).astype(str)
+    reference = ' U.S Census 1880-1980,<ref name="1860Census">{{cite web|url=https://dof.ca.gov/reports/demographic-reports/|title=Population Totals by Township and Place for California Counties: 1860 to 1950|publisher=dof.ca.gov}}</ref>'
     return df, reference
 
 
