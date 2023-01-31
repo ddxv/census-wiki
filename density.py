@@ -1,10 +1,6 @@
 from census import Census
-from config import API_KEY
+from config import API_KEY, POP_VAR_NAMES
 import pandas as pd
-import geopandas as gpd
-import matplotlib.pyplot as plt
-import plotly.express as px
-
 import requests
 from io import BytesIO
 
@@ -15,14 +11,15 @@ file = requests.get(ftp_file)
 df = pd.read_csv(
     BytesIO(file.content),
     sep="|",
-    dtype={"GEOID_PLACE_20": "object", "OID_PLACE_20": "object", "GEOID_PLACE_10":"object"},
+    dtype={
+        "GEOID_PLACE_20": "object",
+        "OID_PLACE_20": "object",
+        "GEOID_PLACE_10": "object",
+    },
 )
 
 
 df["geoid"] = df["GEOID_PLACE_20"]
-
-
-pop_var_names = {"P1_001N": "population"}
 
 
 def get_pops(year: int) -> pd.DataFrame:
@@ -38,17 +35,14 @@ def get_pops(year: int) -> pd.DataFrame:
     pop["geoid"] = pop["state"] + pop["place"]
     pop
 
-    merged = pd.merge(
-        df, pop, how="inner", left_on=["geoid"], right_on=["geoid"]
-    )
+    merged = pd.merge(df, pop, how="inner", left_on=["geoid"], right_on=["geoid"])
 
-    merged['geoid'].value_counts()
+    merged["geoid"].value_counts()
 
-    pop[pop['geoid'] == '0107000']
-    df[df['geoid'] == '0107000'][['GEOID_PLACE_20', 'OID_PLACE_20']]
+    pop[pop["geoid"] == "0107000"]
+    df[df["geoid"] == "0107000"][["GEOID_PLACE_20", "OID_PLACE_20"]]
 
-
-    merged['geoid'].value_counts()
+    merged["geoid"].value_counts()
 
     response = requests.get(
         f"https://api.census.gov/data/2020/dec/pl?get=NAME,{var}&for=place&key={API_KEY}"

@@ -1,8 +1,9 @@
-from wiki import df_to_wikitable
-from config import API_KEY
+from wiki import df_to_wikitable, df_to_uscensus
+from config import API_KEY, POP_VAR_NAMES
 from census import Census
 import pandas as pd
 from us import states
+import requests
 from config import CENSUS_REFERNCE_URL
 
 
@@ -67,14 +68,49 @@ def open_args(args: dict) -> tuple[str, str]:
     return place_name, state_abbr
 
 
-def make_race_demographic_table(args):
+def get_historical_pop(state_abbr, places: list, place_name: str):
+    if state_abbr != "CA":
+        return pd.DataFrame()
+    df = pd.read_excel("data/calhist2.xls", skiprows=6)
+    match_based_on_user = df["Place/Town/City"].str.lower() == place_name.lower()
+    match_based_on_cdp = df["Place/Town/City"].str.lower() == places[0][
+        "NAME"
+    ].lower().replace(" cdp", "")
+    df = df[match_based_on_cdp | match_based_on_user]
+    df = df.dropna(axis=1)
+    if df.shape[0] == 1:
+        print(f"found historical census records {df=}")
+    else:
+        print(f"found too many historical census records {df=} skipping")
+        df = pd.DataFrame()
+    df = (
+        df.drop(["County", "Place/Town/City"], axis=1)
+        .reset_index(drop=True)
+        .T.rename(columns={0: "Population"})
+    )
+    reference = 'U.S Census 1880-1980,<ref name="1860Census">{{cite web|url=https://dof.ca.gov/reports/demographic-reports/|title=Population Totals by Township and Place for California Counties: 1860 to 1950|publisher=dof.ca.gov}}</ref>'
+    return df, reference
+
+
+def get_pop2021(state_fips: str, place_id: str) -> pd.DataFrame:
+    print(f"Calling Census data for year=2021")
+    response = requests.get(
+        f"https://api.census.gov/data/2021/acs/acs5?get=NAME,B01001_001E&for=place:{place_id}&in=state:{state_fips}&key={API_KEY}"
+    )
+    df = pd.DataFrame(response.json()[1:], columns=response.json()[0])
+    df["Year"] = 2021
+    df = df.rename(columns={"B01001_001E": "Population"})
+    return df
+
+
+def make_demographic_tables(args):
     place_name, state_abbr = open_args(args)
 
     c = Census(API_KEY)
 
-    state_fip = states.lookup(state_abbr).fips
+    state_fips = states.lookup(state_abbr).fips
 
-    place_list = c.pl.state_place("NAME", state_fip, "*")
+    place_list = c.pl.state_place("NAME", state_fips, "*")
     places = [x for x in place_list if place_name.lower() in x["NAME"].lower()]
     if len(places) == 1:
         place_id = places[0]["place"]
@@ -84,20 +120,49 @@ def make_race_demographic_table(args):
             f'Place needs to be more specific. Places matched {[place["NAME"] for place in places]}'
         )
 
-    df20 = get_races(2020, state_fip, place_id)
-    df10 = get_races(2010, state_fip, place_id)
-    df00 = get_races(2000, state_fip, place_id)
-    df = pd.concat([df00, df10, df20], axis=1)
+    df21 = get_pop2021(state_fips, place_id)
+    df21 = df21.set_index("Year").drop(["state", "place", "NAME"], axis=1)
+    acs21_estimate = df21.values[0][0]
+    df20 = get_races(2020, state_fips, place_id)
+    df10 = get_races(2010, state_fips, place_id)
+    df00 = get_races(2000, state_fips, place_id)
+    histdf, hist_reference = get_historical_pop(state_abbr, places, place_name)
+    dfs = [df00, df10, df20]
+    if not histdf.empty:
+        dfs.append(histdf)
+    df = pd.concat(dfs, axis=1)
     df = df.sort_values("percent_2020", ascending=False)
+    pd.concat([histdf, pop_df])
+
+    pop_df = (
+        df[["total_2000", "total_2010", "total_2020"]]
+        .reset_index(drop=True)
+        .T[0]
+        .reset_index()
+        .rename(columns={0: "Population", "index": "Year"})
+    )
+    pop_df["Year"] = pop_df["Year"].str.replace("total_", "")
+    pop_df["Population"] = pop_df["Population"].astype(int).astype(str)
+    pop_df = pop_df.set_index("Year")
+
+    pop_table = df_to_uscensus(
+        pop_df,
+        state_fips=state_fips,
+        place_id=place_id,
+        year=2020,
+        estimate=acs21_estimate,
+        estimate_year=2021,
+        hist_reference=hist_reference,
+    )
 
     sdf = df[[x for x in df.columns if "percent" in x]]
     sdf = (sdf * 100).round(2).astype(str) + "%"
-    sdf = append_citation_to_columns(sdf, state_fips=state_fip, place_id=place_id)
+    sdf = append_citation_to_columns(sdf, state_fips=state_fips, place_id=place_id)
 
     table = df_to_wikitable(
         sdf, index_name="Racial and ethnic composition", caption="Race and Ethnicity"
     )
-    return table
+    return table, pop_table
 
 
 HISPANIC = "[[Hispanic and Latino Americans|Hispanic or Latino (of any race)]]"

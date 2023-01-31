@@ -1,5 +1,5 @@
 import argparse
-from race_demographics import make_race_demographic_table
+from population_demographics import make_demographic_tables
 
 
 def manage_cli_args() -> None:
@@ -27,9 +27,11 @@ def main(args: dict) -> None:
     print(f"main started with {args=}")
 
     if args.race_demographics:
-        table = make_race_demographic_table(args)
-        print("------COPY BELOW------\n")
+        table, pop_table = make_demographic_tables(args)
+        print("------RACE DEMOGRAPHICS COPY BELOW------\n")
         print(table)
+        print("------HISTORICAL POPULATION COPY BELOW------\n")
+        print(pop_table)
     else:
         print(f"Missing args")
 
