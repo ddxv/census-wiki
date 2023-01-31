@@ -47,14 +47,17 @@ def get_races(year: int, state_fip: str, place_id: str) -> pd.DataFrame:
     result = c.pl.state_place(
         fields=list(vars.keys()), state_fips=state_fip, place=place_id, year=year
     )
-    result[0].pop("state")
-    result[0].pop("place")
-    total = result[0].pop(total_id)
-    df = pd.DataFrame(result).rename(columns=vars).T
-    df[total_name] = total
-    df = df.rename(columns={0: column_name})
-    df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
-    df[percent_name] = df[column_name].div(df[total_name])
+    try:
+        result[0].pop("state")
+        result[0].pop("place")
+        total = result[0].pop(total_id)
+        df = pd.DataFrame(result).rename(columns=vars).T
+        df[total_name] = total
+        df = df.rename(columns={0: column_name})
+        df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
+        df[percent_name] = df[column_name].div(df[total_name])
+    except Exception:
+        return pd.DataFrame()
     return df
 
 
@@ -69,8 +72,9 @@ def open_args(args: dict) -> tuple[str, str]:
 
 
 def get_historical_pop(state_abbr, places: list, place_name: str):
+    reference = ""
     if state_abbr != "CA":
-        return pd.DataFrame(), ""
+        return pd.DataFrame(), reference
     df = pd.read_excel("data/calhist2.xls", skiprows=6)
     match_based_on_user = df["Place/Town/City"].str.lower() == place_name.lower()
     match_based_on_cdp = df["Place/Town/City"].str.lower() == places[0][
@@ -83,6 +87,7 @@ def get_historical_pop(state_abbr, places: list, place_name: str):
     else:
         print(f"found too many historical census records {df=} skipping")
         df = pd.DataFrame()
+        return df, reference
     df = (
         df.drop(["County", "Place/Town/City"], axis=1)
         .reset_index(drop=True)
@@ -133,7 +138,7 @@ def make_demographic_tables(args):
     df = df.sort_values("percent_2020", ascending=False)
 
     pop_df = (
-        df[["total_2000", "total_2010", "total_2020"]]
+        df[[x for x in df.columns if "total_" in x]]
         .reset_index(drop=True)
         .T[0]
         .reset_index()
