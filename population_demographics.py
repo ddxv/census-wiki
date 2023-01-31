@@ -128,11 +128,8 @@ def make_demographic_tables(args):
     df00 = get_races(2000, state_fips, place_id)
     histdf, hist_reference = get_historical_pop(state_abbr, places, place_name)
     dfs = [df00, df10, df20]
-    if not histdf.empty:
-        dfs.append(histdf)
     df = pd.concat(dfs, axis=1)
     df = df.sort_values("percent_2020", ascending=False)
-    pd.concat([histdf, pop_df])
 
     pop_df = (
         df[["total_2000", "total_2010", "total_2020"]]
@@ -144,6 +141,8 @@ def make_demographic_tables(args):
     pop_df["Year"] = pop_df["Year"].str.replace("total_", "")
     pop_df["Population"] = pop_df["Population"].astype(int).astype(str)
     pop_df = pop_df.set_index("Year")
+    if not histdf.empty:
+        pop_df = pd.concat([histdf, pop_df])
 
     pop_table = df_to_uscensus(
         pop_df,
