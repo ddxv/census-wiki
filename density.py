@@ -2,27 +2,37 @@ from census import Census
 from config import API_KEY, POP_VAR_NAMES
 import pandas as pd
 import requests
-from io import BytesIO
 
 
 ftp_file = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/place/tab20_place20_place10_natl.txt"
 file = requests.get(ftp_file)
 
-df = pd.read_csv(
-    BytesIO(file.content),
-    sep="|",
-    dtype={
-        "GEOID_PLACE_20": "object",
-        "OID_PLACE_20": "object",
-        "GEOID_PLACE_10": "object",
-    },
-)
+
+def get_tigerweb_area(state_fips: str) -> pd.DataFrame:
+    outfields = ["GEOID", "BASENAME", "AREALAND", "AREAWATER"]
+    params = {
+        "outFields": ",".join(outfields),
+        #'outFields':outfields,
+        "where": f"STATE='{state_fips}'",
+        "returnGeometry": "false",
+        "f": "json",
+        "units": "esriSRUnit_Foot",
+        "sqlFormat": "none",
+        "featureEncoding": "esriDefault",
+    }
+    # TIGERWEB_CENSUS2020 = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/19/query?text=Guerneville&units=esriSRUnit_Foot&outFields=GEOID%2CAREALAND%2CAREAWATER%2CBASENAME%2CSTATE&returnGeometry=false&f=pjson'
+    # response = requests.get(TIGERWEB_CENSUS2020)
+    # response.json()
+    TIGERWEB_CENSUS2020 = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/19/query"
+    response = requests.get(TIGERWEB_CENSUS2020, params=params)
+    myjson = response.json()
+    df = pd.DataFrame(myjson["features"])
+    df = pd.json_normalize(df["attributes"])
+    df.columns = df.columns.str.lower()
+    return df
 
 
-df["geoid"] = df["GEOID_PLACE_20"]
-
-
-def get_pops(year: int) -> pd.DataFrame:
+def get_pops(year: int, state_fips: str) -> pd.DataFrame:
     print(f"Calling Census data for {year=}")
     c = Census(API_KEY)
 
@@ -30,12 +40,25 @@ def get_pops(year: int) -> pd.DataFrame:
     resp = c.pl.get(var, {"for": "place:*"})
     pop = pd.DataFrame(resp)
 
-    pop = pop.rename(columns=pop_var_names)
+    pop = pop.rename(columns=POP_VAR_NAMES)
 
     pop["geoid"] = pop["state"] + pop["place"]
-    pop
 
-    merged = pd.merge(df, pop, how="inner", left_on=["geoid"], right_on=["geoid"])
+    state_fips = "06"
+
+    area_df = get_tigerweb_area(state_fips=state_fips)
+
+    merged = pd.merge(
+        area_df, pop, how="inner", left_on=["geoid"], right_on=["geoid"], validate="1:1"
+    )
+    merged["area_km"] = merged["arealand"] / 1000000
+    merged["pop_per_km"] = merged["population"] / merged["area_km"]
+
+    merged = merged.sort_values("pop_per_km", ascending=False)
+
+    merged.head(20)
+
+    pop
 
     merged["geoid"].value_counts()
 
