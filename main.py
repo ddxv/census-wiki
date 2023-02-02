@@ -28,10 +28,11 @@ def main(args: dict) -> None:
 
     if args.race_demographics:
         table, pop_table = make_demographic_tables(args)
-        print("------RACE DEMOGRAPHICS COPY BELOW------\n")
-        print(table)
         print("------HISTORICAL POPULATION COPY BELOW------\n")
         print(pop_table)
+        print("\n\n")
+        print(table)
+        print("------RACE DEMOGRAPHICS COPY ABOVE------\n")
     else:
         print(f"Missing args")
 
