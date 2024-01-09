@@ -1,3 +1,4 @@
+"""Get population demographic data from US census APIs."""
 import argparse
 
 import pandas as pd
@@ -5,32 +6,47 @@ import requests
 from census import Census
 from us import states
 
-from config import API_KEY, CENSUS_REFERNCE_URL
+from config import (
+    API_KEY,
+    CENSUS_2000,
+    CENSUS_2010,
+    CENSUS_2020,
+    CENSUS_GOV_2020_REFRENCE_URL,
+    ESTIMATE_YEAR,
+)
+from logger import get_logger
 from wiki import df_to_uscensus, df_to_wikitable
+
+logger = get_logger(__name__)
 
 
 def append_citation_to_columns(
-    df: pd.DataFrame, state_fips: int, place_id: int
+    df: pd.DataFrame,
+    state_fips: int,
+    place_id: int,
 ) -> pd.DataFrame:
-    for year in [2000, 2010, 2020]:
-        reference_url = CENSUS_REFERNCE_URL.format(
-            state_fips=state_fips, place_id=place_id, year=year
+    """Add census citation for table."""
+    for year in [CENSUS_2000, CENSUS_2010, CENSUS_2020]:
+        reference_url = CENSUS_GOV_2020_REFRENCE_URL.format(
+            state_fips=state_fips,
+            place_id=place_id,
+            year=year,
         )
-        if year == 2020:
+        if year in (CENSUS_2020, CENSUS_2010):
             reference_url += ".P2"
-        elif year == 2010:
-            reference_url += ".P2"
-        elif year == 2000:
+        elif year == CENSUS_2000:
             reference_url += ".PL002"
         else:
-            raise ValueError(f"Year {year} not accepted")
+            msg = f"Year {year} not accepted"
+            raise ValueError(msg)
         ref_specs = f"<ref name=datacensus{year}p2>{{{{cite web|url={reference_url}|publisher=US Census Bureau|title={year}: DEC Redistricting Data (PL 94-171)}}}}</ref>"
         df = df.rename(columns={f"percent_{year}": f"{year}{ref_specs}"})
     return df
 
 
 def get_races(year: int, state_fip: str, place_id: str) -> pd.DataFrame:
-    print(f"Calling Census data for {year=}")
+    """Call census data for race populations."""
+    logger.info("Calling Census data", extra={"year": year})
     c = Census(API_KEY)
     column_name = f"count_{year}"
     total_name = f"total_{year}"
@@ -38,24 +54,28 @@ def get_races(year: int, state_fip: str, place_id: str) -> pd.DataFrame:
     # 2010, 2020: DECENNIALPL2010.P2, DECENNIALPL2020.P2
     # 2000: DECENNIALPL2000.PL002
 
-    if year == 2020:
-        vars = P2_2020
-    elif year == 2010:
-        vars = P2_2010
-    elif year == 2000:
-        vars = P2_2000
+    if year == CENSUS_2020:
+        year_dict = P2_2020
+    elif year == CENSUS_2010:
+        year_dict = P2_2010
+    elif year == CENSUS_2000:
+        year_dict = P2_2000
     else:
-        raise ValueError(f"Year {year} not accepted")
+        msg = f"Year {year} not accepted"
+        raise ValueError(msg)
 
-    total_id = [k for k, v in vars.items() if v == "total"][0]
+    total_id = [k for k, v in year_dict.items() if v == "total"][0]
     result = c.pl.state_place(
-        fields=list(vars.keys()), state_fips=state_fip, place=place_id, year=year
+        fields=list(year_dict.keys()),
+        state_fips=state_fip,
+        place=place_id,
+        year=year,
     )
     try:
         result[0].pop("state")
         result[0].pop("place")
         total = result[0].pop(total_id)
-        df = pd.DataFrame(result).rename(columns=vars).T
+        df = pd.DataFrame(result).rename(columns=year_dict).T
         df[total_name] = total
         df = df.rename(columns={0: column_name})
         df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
@@ -66,18 +86,24 @@ def get_races(year: int, state_fip: str, place_id: str) -> pd.DataFrame:
 
 
 def open_args(args: argparse.Namespace) -> tuple[str, str]:
+    """Open and verify args."""
     place_name = args.place_name if "args" in locals() else "Los Angeles"
     state_abbr = args.state_abbr if "args" in locals() else "CA"
     if not place_name:
-        raise ValueError("Place name (-p) must be included. eg: 'Los Angeles'")
+        msg = "Place name (-p) must be included. eg: 'Los Angeles'"
+        raise ValueError(msg)
     if not state_abbr:
-        raise ValueError("State abbr (-s) must be included. eg: CA")
+        msg = "State abbr (-s) must be included. eg: CA"
+        raise ValueError(msg)
     return place_name, state_abbr
 
 
 def get_historical_pop(
-    state_abbr: str, places: list, place_name: str
+    state_abbr: str,
+    places: list,
+    place_name: str,
 ) -> tuple[pd.DataFrame, str]:
+    """Get historical population dataframe."""
     reference = ""
     if state_abbr != "CA":
         return pd.DataFrame(), reference
@@ -89,9 +115,12 @@ def get_historical_pop(
     df = df[match_based_on_cdp | match_based_on_user]
     df = df.dropna(axis=1)
     if df.shape[0] == 1:
-        print(f"found historical census records {df=}")
+        logger.info("Found historical census records", extra={"df": df})
     else:
-        print(f"found too many historical census records {df=} skipping")
+        logger.info(
+            "Found too many historical census records skipping",
+            extra={"df": df},
+        )
         df = pd.DataFrame()
         return df, reference
     df = (
@@ -104,32 +133,25 @@ def get_historical_pop(
     return df, reference
 
 
-def get_pop2021(state_fips: str, place_id: str) -> pd.DataFrame:
-    print("Calling Census data for year=2021")
-    response = requests.get(
-        f"https://api.census.gov/data/2021/acs/acs5?get=NAME,B01001_001E&for=place:{place_id}&in=state:{state_fips}&key={API_KEY}"
-    )
-    df = pd.DataFrame(response.json()[1:], columns=response.json()[0])
-    df["Year"] = 2021
-    df = df.rename(columns={"B01001_001E": "Population"})
-    return df
-
-
 def get_acs_pop_estimate(year: int, state_fips: str, place_id: str) -> pd.DataFrame:
-    print(f"Calling Census data for {year=}")
+    """Get the ACS yearly population estimates.
+
+    The estimates are usually available around end of year for the previous year.
+    """
+    logger.info("Calling Census data", extra={"year": year})
     response = requests.get(
-        f"https://api.census.gov/data/{year}/acs/acs5?get=NAME,B01001_001E&for=place:{place_id}&in=state:{state_fips}&key={API_KEY}"
+        f"https://api.census.gov/data/{year}/acs/acs5?get=NAME,B01001_001E&for=place:{place_id}&in=state:{state_fips}&key={API_KEY}",
+        timeout=5,
     )
     df = pd.DataFrame(response.json()[1:], columns=response.json()[0])
-    df["Year"] = year
     df = df.rename(columns={"B01001_001E": "Population"})
+    df["Year"] = year
     return df
 
 
 def make_demographic_tables(args: argparse.Namespace) -> tuple[str, str]:
+    """Make the racial demographic Wiki table."""
     place_name, state_abbr = open_args(args)
-
-    est_year = 2022
 
     c = Census(API_KEY)
 
@@ -139,15 +161,14 @@ def make_demographic_tables(args: argparse.Namespace) -> tuple[str, str]:
     places = [x for x in place_list if place_name.lower() in x["NAME"].lower()]
     if len(places) == 1:
         place_id = places[0]["place"]
-        print(f"found place: {places}")
+        logger.info("Found place: ", extra={"places": places})
     else:
-        raise ValueError(
-            f'Place needs to be more specific. Places matched {[place["NAME"] for place in places]}'
-        )
+        error = f'Place needs to be more specific. Places matched {[place["NAME"] for place in places]}'
+        raise ValueError(error)
 
-    df_acs = get_acs_pop_estimate(est_year, state_fips, place_id)
+    df_acs = get_acs_pop_estimate(ESTIMATE_YEAR, state_fips, place_id)
     df_acs = df_acs.set_index("Year").drop(["state", "place", "NAME"], axis=1)
-    acs21_estimate = df_acs.values[0][0]
+    acs_estimate = df_acs.to_numpy()[0][0]
     df20 = get_races(2020, state_fips, place_id)
     df10 = get_races(2010, state_fips, place_id)
     df00 = get_races(2000, state_fips, place_id)
@@ -173,9 +194,7 @@ def make_demographic_tables(args: argparse.Namespace) -> tuple[str, str]:
         pop_df,
         state_fips=state_fips,
         place_id=place_id,
-        year=2020,
-        estimate=acs21_estimate,
-        estimate_year=2021,
+        estimate=acs_estimate,
         hist_reference=hist_reference,
     )
 
@@ -184,7 +203,9 @@ def make_demographic_tables(args: argparse.Namespace) -> tuple[str, str]:
     sdf = append_citation_to_columns(sdf, state_fips=state_fips, place_id=place_id)
 
     table = df_to_wikitable(
-        sdf, index_name="Racial and ethnic composition", caption="Race and Ethnicity"
+        sdf,
+        index_name="Racial and ethnic composition",
+        caption="Race and Ethnicity",
     )
     return table, pop_table
 

@@ -1,12 +1,21 @@
+"""Main contains start point for running from command line."""
 import argparse
 
+from logger import get_logger
 from population_demographics import make_demographic_tables
+
+logger = get_logger(__name__)
 
 
 def manage_cli_args() -> argparse.Namespace:
+    """Set command line interface arguments for running file."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-r", "--race-demographics", action="store_true", help="", default=False
+        "-r",
+        "--race-demographics",
+        action="store_true",
+        help="",
+        default=False,
     )
     parser.add_argument(
         "-s",
@@ -24,18 +33,21 @@ def manage_cli_args() -> argparse.Namespace:
     return args
 
 
-def main(args: argparse.Namespace) -> None:
-    print(f"main started with {args=}")
+def main(cli_args: argparse.Namespace) -> None:
+    """Print Wiki tables based on command line arguments."""
+    logger.info("main started", extra={"myargs": cli_args})
 
-    if args.race_demographics:
-        table, pop_table = make_demographic_tables(args)
-        print("------HISTORICAL POPULATION COPY BELOW------\n")
-        print(pop_table)
-        print("\n\n")
-        print(table)
-        print("------RACE DEMOGRAPHICS COPY ABOVE------\n")
+    if cli_args.race_demographics:
+        table, pop_table = make_demographic_tables(cli_args)
+        copy_pastable_msg = ""
+        copy_pastable_msg += "------HISTORICAL POPULATION COPY BELOW------\n"
+        copy_pastable_msg += pop_table
+        copy_pastable_msg += "\n\n"
+        copy_pastable_msg += table
+        copy_pastable_msg += "------RACE DEMOGRAPHICS COPY ABOVE------\n"
+        logger.info(copy_pastable_msg)
     else:
-        print("Missing args")
+        logger.error("Missing args")
 
 
 if __name__ == "__main__":

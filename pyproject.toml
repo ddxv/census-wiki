@@ -14,17 +14,30 @@ requires = ["setuptools", "wheel"]
 
 
 [tool.ruff]
-# Enable flake8-bugbear (`B`) rules.
-select = ["E", "W", "F", "B", "I", "N", "UP"]
+target-version = "py312"
+# Rules, see: https://docs.astral.sh/ruff/rules/
+# select = [
+#     "E",  # errors
+#     "W",  # pycodestyle Warnings
+#     "F",  # PyFlake
+#     "B",  # flake8-bugbear rules
+#     "I",  # import sort
+#     "N",  # PEP8 naming rules
+#     "UP", # pyupgrade, warnings for common mistakes for new versions
+#     #"D", # pydocstyle, all funcs have docstring
+# ]
+select = ["ALL"]
 
 ignore = [
-    "E501", # line length
+    "E501",   # line length
+    "PD901",  # Pandas dataframes called 'df'
+    "ERA001", # no commented out code
 ]
 
 # Avoid trying to fix flake8-bugbear (`B`) violations.
 unfixable = ["B"]
 
-fixable = ["I", "F"]
+fixable = ["I", "F", "COM"]
 
 [tool.mypy]
 warn_return_any = true

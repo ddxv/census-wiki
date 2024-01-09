@@ -1,14 +1,19 @@
+"""Density tables, but currently a work in progress."""
 import pandas as pd
 import requests
 from census import Census
 
 from config import API_KEY, POP_VAR_NAMES
+from logger import get_logger
+
+logger = get_logger(__name__)
 
 ftp_file = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/place/tab20_place20_place10_natl.txt"
-file = requests.get(ftp_file)
+file = requests.get(ftp_file, timeout=5)
 
 
 def get_tigerweb_area(state_fips: str) -> pd.DataFrame:
+    """Get tigerweb area for size of location."""
     outfields = ["GEOID", "BASENAME", "AREALAND", "AREAWATER"]
     params = {
         "outFields": ",".join(outfields),
@@ -24,7 +29,7 @@ def get_tigerweb_area(state_fips: str) -> pd.DataFrame:
     # response = requests.get(TIGERWEB_CENSUS2020)
     # response.json()
     tigerweb_census2020 = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/19/query"
-    response = requests.get(tigerweb_census2020, params=params)
+    response = requests.get(tigerweb_census2020, params=params, timeout=2)
     myjson = response.json()
     df = pd.DataFrame(myjson["features"])
     df = pd.json_normalize(df["attributes"])
@@ -33,7 +38,8 @@ def get_tigerweb_area(state_fips: str) -> pd.DataFrame:
 
 
 def get_pops(year: int, state_fips: str) -> pd.DataFrame:
-    print(f"Calling Census data for {year=}")
+    """Get populations for area."""
+    logger.info("Calling Census data", extra={"year": year})
     c = Census(API_KEY)
 
     var = "P1_001N"
@@ -48,8 +54,12 @@ def get_pops(year: int, state_fips: str) -> pd.DataFrame:
 
     area_df = get_tigerweb_area(state_fips=state_fips)
 
-    merged = pd.merge(
-        area_df, pop, how="inner", left_on=["geoid"], right_on=["geoid"], validate="1:1"
+    merged = area_df.merge(
+        pop,
+        how="inner",
+        left_on=["geoid"],
+        right_on=["geoid"],
+        validate="1:1",
     )
     merged["area_km"] = merged["arealand"] / 1000000
     merged["pop_per_km"] = merged["population"] / merged["area_km"]
@@ -66,7 +76,8 @@ def get_pops(year: int, state_fips: str) -> pd.DataFrame:
     merged["geoid"].value_counts()
 
     response = requests.get(
-        f"https://api.census.gov/data/2020/dec/pl?get=NAME,{var}&for=place&key={API_KEY}"
+        f"https://api.census.gov/data/2020/dec/pl?get=NAME,{var}&for=place&key={API_KEY}",
+        timeout=5,
     )
     result = response.json()
 
