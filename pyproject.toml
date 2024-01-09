@@ -1,0 +1,32 @@
+[project]
+authors = [{ name = "James O'Claire" }]
+name = "cenus-wiki"
+description = "Build Wikipedia Tables for USA Census data"
+version = "0.0.1"
+
+[project.optional-dependencies]
+dev = ["pre-commit"]
+
+dependencies = ["us", "census", "xlrd", "requests", "pandas"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+
+
+[tool.ruff]
+# Enable flake8-bugbear (`B`) rules.
+select = ["E", "W", "F", "B", "I", "N", "UP"]
+
+ignore = [
+    "E501", # line length
+]
+
+# Avoid trying to fix flake8-bugbear (`B`) violations.
+unfixable = ["B"]
+
+fixable = ["I", "F"]
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
