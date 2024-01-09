@@ -1,4 +1,5 @@
 import argparse
+
 from population_demographics import make_demographic_tables
 
 

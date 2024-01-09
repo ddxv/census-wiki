@@ -1,4 +1,5 @@
 import pandas as pd
+
 from config import CDP_REFERENCE_URL_BASIC
 
 
@@ -29,7 +30,9 @@ def df_to_uscensus(
     return table
 
 
-def df_to_wikitable(df: pd.DataFrame, index_name: str, caption=None) -> str:
+def df_to_wikitable(
+    df: pd.DataFrame, index_name: str, caption: str | None = None
+) -> str:
     table = '{| class="wikitable sortable collapsible" style="font-size: 90%;"'
     if caption:
         table += f"\n|+ {caption}\n"

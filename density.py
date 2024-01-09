@@ -1,8 +1,8 @@
-from census import Census
-from config import API_KEY, POP_VAR_NAMES
 import pandas as pd
 import requests
+from census import Census
 
+from config import API_KEY, POP_VAR_NAMES
 
 ftp_file = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/place/tab20_place20_place10_natl.txt"
 file = requests.get(ftp_file)
@@ -23,8 +23,8 @@ def get_tigerweb_area(state_fips: str) -> pd.DataFrame:
     # TIGERWEB_CENSUS2020 = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/19/query?text=Guerneville&units=esriSRUnit_Foot&outFields=GEOID%2CAREALAND%2CAREAWATER%2CBASENAME%2CSTATE&returnGeometry=false&f=pjson'
     # response = requests.get(TIGERWEB_CENSUS2020)
     # response.json()
-    TIGERWEB_CENSUS2020 = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/19/query"
-    response = requests.get(TIGERWEB_CENSUS2020, params=params)
+    tigerweb_census2020 = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/19/query"
+    response = requests.get(tigerweb_census2020, params=params)
     myjson = response.json()
     df = pd.DataFrame(myjson["features"])
     df = pd.json_normalize(df["attributes"])
@@ -57,8 +57,6 @@ def get_pops(year: int, state_fips: str) -> pd.DataFrame:
     merged = merged.sort_values("pop_per_km", ascending=False)
 
     merged.head(20)
-
-    pop
 
     merged["geoid"].value_counts()
 

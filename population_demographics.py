@@ -1,14 +1,17 @@
-from wiki import df_to_wikitable, df_to_uscensus
-from config import API_KEY
-from census import Census
-import pandas as pd
-from us import states
-import requests
-from config import CENSUS_REFERNCE_URL
 import argparse
 
+import pandas as pd
+import requests
+from census import Census
+from us import states
 
-def append_citation_to_columns(df: pd.DataFrame, state_fips, place_id) -> pd.DataFrame:
+from config import API_KEY, CENSUS_REFERNCE_URL
+from wiki import df_to_uscensus, df_to_wikitable
+
+
+def append_citation_to_columns(
+    df: pd.DataFrame, state_fips: int, place_id: int
+) -> pd.DataFrame:
     for year in [2000, 2010, 2020]:
         reference_url = CENSUS_REFERNCE_URL.format(
             state_fips=state_fips, place_id=place_id, year=year
@@ -72,7 +75,9 @@ def open_args(args: argparse.Namespace) -> tuple[str, str]:
     return place_name, state_abbr
 
 
-def get_historical_pop(state_abbr, places: list, place_name: str):
+def get_historical_pop(
+    state_abbr: str, places: list, place_name: str
+) -> tuple[pd.DataFrame, str]:
     reference = ""
     if state_abbr != "CA":
         return pd.DataFrame(), reference
@@ -121,7 +126,7 @@ def get_acs_pop_estimate(year: int, state_fips: str, place_id: str) -> pd.DataFr
     return df
 
 
-def make_demographic_tables(args):
+def make_demographic_tables(args: argparse.Namespace) -> tuple[str, str]:
     place_name, state_abbr = open_args(args)
 
     est_year = 2022
