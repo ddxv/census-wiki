@@ -1,10 +1,11 @@
 from wiki import df_to_wikitable, df_to_uscensus
-from config import API_KEY, POP_VAR_NAMES
+from config import API_KEY
 from census import Census
 import pandas as pd
 from us import states
 import requests
 from config import CENSUS_REFERNCE_URL
+import argparse
 
 
 def append_citation_to_columns(df: pd.DataFrame, state_fips, place_id) -> pd.DataFrame:
@@ -61,13 +62,13 @@ def get_races(year: int, state_fip: str, place_id: str) -> pd.DataFrame:
     return df
 
 
-def open_args(args: dict) -> tuple[str, str]:
+def open_args(args: argparse.Namespace) -> tuple[str, str]:
     place_name = args.place_name if "args" in locals() else "Los Angeles"
     state_abbr = args.state_abbr if "args" in locals() else "CA"
     if not place_name:
-        raise ValueError(f"Place name (-p) must be included. eg: 'Los Angeles'")
+        raise ValueError("Place name (-p) must be included. eg: 'Los Angeles'")
     if not state_abbr:
-        raise ValueError(f"State abbr (-s) must be included. eg: CA")
+        raise ValueError("State abbr (-s) must be included. eg: CA")
     return place_name, state_abbr
 
 
@@ -99,7 +100,7 @@ def get_historical_pop(state_abbr, places: list, place_name: str):
 
 
 def get_pop2021(state_fips: str, place_id: str) -> pd.DataFrame:
-    print(f"Calling Census data for year=2021")
+    print("Calling Census data for year=2021")
     response = requests.get(
         f"https://api.census.gov/data/2021/acs/acs5?get=NAME,B01001_001E&for=place:{place_id}&in=state:{state_fips}&key={API_KEY}"
     )

@@ -63,44 +63,44 @@ def get_pops(year: int, state_fips: str) -> pd.DataFrame:
     merged["geoid"].value_counts()
 
     pop[pop["geoid"] == "0107000"]
-    df[df["geoid"] == "0107000"][["GEOID_PLACE_20", "OID_PLACE_20"]]
+    # df[df["geoid"] == "0107000"][["GEOID_PLACE_20", "OID_PLACE_20"]]
 
     merged["geoid"].value_counts()
 
     response = requests.get(
         f"https://api.census.gov/data/2020/dec/pl?get=NAME,{var}&for=place&key={API_KEY}"
     )
-    response.json()
+    result = response.json()
 
     result[0].pop("state")
     result[0].pop("place")
-    total = result[0].pop(total_id)
     df = pd.DataFrame(result).rename(columns=vars).T
-    df[total_name] = total
-    df = df.rename(columns={0: column_name})
-    df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
-    df[percent_name] = df[column_name].div(df[total_name])
+    # total = result[0].pop(total_id)
+    # df[total_name] = total
+    # df = df.rename(columns={0: column_name})
+    # df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
+    # df[percent_name] = df[column_name].div(df[total_name])
     return df
 
 
-def make_race_demographic_table(args):
-    place_name, state_abbr = open_args(args)
+# def make_race_demographic_table(args: argparse.Namespace) -> None:
+#     place_name, state_abbr = open_args(args)
 
-    c = Census(API_KEY)
+#     c = Census(API_KEY)
 
-    state_fip = states.lookup(state_abbr).fips
+#     state_fip = states.lookup(state_abbr).fips
 
-    place_list = c.pl.state_place("NAME", state_fip, "*")
-    places = [x for x in place_list if place_name.lower() in x["NAME"].lower()]
-    if len(places) == 1:
-        place_id = places[0]["place"]
-        print(f"found place: {places}")
-    else:
-        raise ValueError(
-            f'Place needs to be more specific. Places matched {[place["NAME"] for place in places]}'
-        )
+#     place_list = c.pl.state_place("NAME", state_fip, "*")
+#     places = [x for x in place_list if place_name.lower() in x["NAME"].lower()]
+#     if len(places) == 1:
+#         place_id = places[0]["place"]
+#         print(f"found place: {places}")
+#     else:
+#         raise ValueError(
+#             f'Place needs to be more specific. Places matched {[place["NAME"] for place in places]}'
+#         )
 
-    df20 = get_races(2020, state_fip, place_id)
-    df10 = get_races(2010, state_fip, place_id)
-    df00 = get_races(2000, state_fip, place_id)
-    df = pd.concat([df00, df10, df20], axis=1)
+#     df20 = get_races(2020, state_fip, place_id)
+#     df10 = get_races(2010, state_fip, place_id)
+#     df00 = get_races(2000, state_fip, place_id)
+#     df = pd.concat([df00, df10, df20], axis=1)

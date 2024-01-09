@@ -2,7 +2,7 @@ import argparse
 from population_demographics import make_demographic_tables
 
 
-def manage_cli_args() -> None:
+def manage_cli_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-r", "--race-demographics", action="store_true", help="", default=False
@@ -23,7 +23,7 @@ def manage_cli_args() -> None:
     return args
 
 
-def main(args: dict) -> None:
+def main(args: argparse.Namespace) -> None:
     print(f"main started with {args=}")
 
     if args.race_demographics:
