@@ -34,7 +34,7 @@ def main(args: dict) -> None:
         print(table)
         print("------RACE DEMOGRAPHICS COPY ABOVE------\n")
     else:
-        print(f"Missing args")
+        print("Missing args")
 
 
 if __name__ == "__main__":

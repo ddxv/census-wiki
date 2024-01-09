@@ -109,8 +109,21 @@ def get_pop2021(state_fips: str, place_id: str) -> pd.DataFrame:
     return df
 
 
+def get_acs_pop_estimate(year: int, state_fips: str, place_id: str) -> pd.DataFrame:
+    print(f"Calling Census data for {year=}")
+    response = requests.get(
+        f"https://api.census.gov/data/{year}/acs/acs5?get=NAME,B01001_001E&for=place:{place_id}&in=state:{state_fips}&key={API_KEY}"
+    )
+    df = pd.DataFrame(response.json()[1:], columns=response.json()[0])
+    df["Year"] = year
+    df = df.rename(columns={"B01001_001E": "Population"})
+    return df
+
+
 def make_demographic_tables(args):
     place_name, state_abbr = open_args(args)
+
+    est_year = 2022
 
     c = Census(API_KEY)
 
@@ -126,9 +139,9 @@ def make_demographic_tables(args):
             f'Place needs to be more specific. Places matched {[place["NAME"] for place in places]}'
         )
 
-    df21 = get_pop2021(state_fips, place_id)
-    df21 = df21.set_index("Year").drop(["state", "place", "NAME"], axis=1)
-    acs21_estimate = df21.values[0][0]
+    df_acs = get_acs_pop_estimate(est_year, state_fips, place_id)
+    df_acs = df_acs.set_index("Year").drop(["state", "place", "NAME"], axis=1)
+    acs21_estimate = df_acs.values[0][0]
     df20 = get_races(2020, state_fips, place_id)
     df10 = get_races(2010, state_fips, place_id)
     df00 = get_races(2000, state_fips, place_id)

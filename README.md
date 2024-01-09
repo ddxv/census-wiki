@@ -2,7 +2,9 @@
 
 
 ## Install
-`pip install requirements.txt`
+`python3 -m venv .virtualenv/` Create Python Virtual Environment
+`source .virtualenv/bin/activate` activate virtual environment
+`pip install requirements.txt` Install Requirements
 
 ## Run:
 
