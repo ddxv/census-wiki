@@ -83,13 +83,12 @@ def get_pops(year: int, state_fips: str) -> pd.DataFrame:
 
     result[0].pop("state")
     result[0].pop("place")
-    df = pd.DataFrame(result).rename(columns=vars).T
     # total = result[0].pop(total_id)
     # df[total_name] = total
     # df = df.rename(columns={0: column_name})
     # df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
     # df[percent_name] = df[column_name].div(df[total_name])
-    return df
+    return pd.DataFrame(result).rename(columns=vars).T
 
 
 # def make_race_demographic_table(args: argparse.Namespace) -> None:

@@ -64,24 +64,21 @@ def get_races(year: int, state_fip: str, place_id: str) -> pd.DataFrame:
         msg = f"Year {year} not accepted"
         raise ValueError(msg)
 
-    total_id = [k for k, v in year_dict.items() if v == "total"][0]
+    total_id = next(k for k, v in year_dict.items() if v == "total")
     result = c.pl.state_place(
         fields=list(year_dict.keys()),
         state_fips=state_fip,
         place=place_id,
         year=year,
     )
-    try:
-        result[0].pop("state")
-        result[0].pop("place")
-        total = result[0].pop(total_id)
-        df = pd.DataFrame(result).rename(columns=year_dict).T
-        df[total_name] = total
-        df = df.rename(columns={0: column_name})
-        df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
-        df[percent_name] = df[column_name].div(df[total_name])
-    except Exception:
-        return pd.DataFrame()
+    result[0].pop("state")
+    result[0].pop("place")
+    total = result[0].pop(total_id)
+    df = pd.DataFrame(result).rename(columns=year_dict).T
+    df[total_name] = total
+    df = df.rename(columns={0: column_name})
+    df[[total_name, column_name]] = df[[total_name, column_name]].astype(float)
+    df[percent_name] = df[column_name].div(df[total_name])
     return df
 
 

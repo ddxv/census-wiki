@@ -32,6 +32,8 @@ ignore = [
     "E501",   # line length
     "PD901",  # Pandas dataframes called 'df'
     "ERA001", # no commented out code
+    "D211",   # one-blank-line-before-class, conflict with D203
+    "D213",   # multi-line-summary-second-line, conflict with D212
 ]
 
 # Avoid trying to fix flake8-bugbear (`B`) violations.

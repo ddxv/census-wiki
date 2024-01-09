@@ -1,6 +1,7 @@
 """Editable configs."""
 
 import tomllib
+from pathlib import Path
 
 api_key_location = "api_key.toml"
 
@@ -26,6 +27,6 @@ LATEST_DECENNIAL_CENSUS_YEAR = CENSUS_2020
 ESTIMATE_YEAR = 2022
 
 
-with open(api_key_location, "rb") as f:
+with Path(api_key_location).open("rb") as f:
     data = tomllib.load(f)
     API_KEY = data["key"]
