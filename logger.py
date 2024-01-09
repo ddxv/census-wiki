@@ -2,7 +2,7 @@
 import logging
 
 
-def get_logger(mod_name: str, log_name: str = "dash") -> logging.Logger:
+def get_logger(mod_name: str) -> logging.Logger:
     """Retun logger object."""
     log_format = "%(asctime)s: %(name)s: %(levelname)s: %(message)s"
     # create logger
