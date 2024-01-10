@@ -28,7 +28,7 @@ def manage_cli_args() -> argparse.Namespace:
 
 def main(cli_args: argparse.Namespace) -> None:
     """Print Wiki tables based on command line arguments."""
-    logger.info("main started", extra={"myargs": cli_args})
+    logger.info(f"Started with {cli_args=}")
 
     table, pop_table = make_demographic_tables(cli_args)
     copy_pastable_msg = ""

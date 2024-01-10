@@ -39,7 +39,7 @@ def get_tigerweb_area(state_fips: str) -> pd.DataFrame:
 
 def get_pops(year: int, state_fips: str) -> pd.DataFrame:
     """Get populations for area."""
-    logger.info("Calling Census data", extra={"year": year})
+    logger.info(f"Calling Census data {year=}")
     c = Census(API_KEY)
 
     var = "P1_001N"

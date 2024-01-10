@@ -46,7 +46,7 @@ def append_citation_to_columns(
 
 def get_races(year: int, state_fip: str, place_id: str) -> pd.DataFrame:
     """Call census data for race populations."""
-    logger.info("Calling Census data", extra={"year": year})
+    logger.info(f"Calling Census data {year=}")
     c = Census(API_KEY)
     column_name = f"count_{year}"
     total_name = f"total_{year}"
@@ -112,12 +112,9 @@ def get_historical_pop(
     df = df[match_based_on_cdp | match_based_on_user]
     df = df.dropna(axis=1)
     if df.shape[0] == 1:
-        logger.info("Found historical census records", extra={"df": df})
+        logger.info("Found historical census records")
     else:
-        logger.info(
-            "Found too many historical census records skipping",
-            extra={"df": df},
-        )
+        logger.info("Found too many historical census records skipping")
         df = pd.DataFrame()
         return df, reference
     df = (
@@ -135,7 +132,7 @@ def get_acs_pop_estimate(year: int, state_fips: str, place_id: str) -> pd.DataFr
 
     The estimates are usually available around end of year for the previous year.
     """
-    logger.info("Calling Census data", extra={"year": year})
+    logger.info(f"Calling Census data {year=}")
     response = requests.get(
         f"https://api.census.gov/data/{year}/acs/acs5?get=NAME,B01001_001E&for=place:{place_id}&in=state:{state_fips}&key={API_KEY}",
         timeout=5,
@@ -158,9 +155,9 @@ def make_demographic_tables(args: argparse.Namespace) -> tuple[str, str]:
     places = [x for x in place_list if place_name.lower() in x["NAME"].lower()]
     if len(places) == 1:
         place_id = places[0]["place"]
-        logger.info("Found place: ", extra={"places": places})
+        logger.info(f"Found place {places[0]}, place_id: {place_id}}")
     else:
-        error = f'Place needs to be more specific. Places matched {[place["NAME"] for place in places]}'
+        error = f'Place needs to be more specific. Choose one of places matched: {[place["NAME"] for place in places]}'
         raise ValueError(error)
 
     df_acs = get_acs_pop_estimate(ESTIMATE_YEAR, state_fips, place_id)

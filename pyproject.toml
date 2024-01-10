@@ -34,6 +34,7 @@ ignore = [
     "ERA001", # no commented out code
     "D211",   # one-blank-line-before-class, conflict with D203
     "D213",   # multi-line-summary-second-line, conflict with D212
+    "G",      # Pyflake logging recommends using extra= which is more cumbersome than f-strings
 ]
 
 # Avoid trying to fix flake8-bugbear (`B`) violations.
