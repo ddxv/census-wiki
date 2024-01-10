@@ -1,8 +1,8 @@
 """Main contains start point for running from command line."""
 import argparse
 
-from logger import get_logger
-from population_demographics import make_demographic_tables
+from src.logger import get_logger
+from src.population_demographics import make_demographic_tables
 
 logger = get_logger(__name__)
 

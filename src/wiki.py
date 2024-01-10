@@ -1,7 +1,7 @@
 """Create wiki formatted tables."""
 import pandas as pd
 
-from config import (
+from src.config import (
     ACS_ESTIMATE_REFERENCE_URL,
     CENSUS_GOV_2020_REFRENCE_URL,
     ESTIMATE_YEAR,

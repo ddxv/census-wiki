@@ -3,8 +3,8 @@ import pandas as pd
 import requests
 from census import Census
 
-from config import API_KEY, POP_VAR_NAMES
-from logger import get_logger
+from src.config import API_KEY, POP_VAR_NAMES
+from src.logger import get_logger
 
 logger = get_logger(__name__)
 

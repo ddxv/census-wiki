@@ -6,7 +6,7 @@ import requests
 from census import Census
 from us import states
 
-from config import (
+from src.config import (
     API_KEY,
     CENSUS_2000,
     CENSUS_2010,
@@ -14,8 +14,8 @@ from config import (
     CENSUS_GOV_2020_REFRENCE_URL,
     ESTIMATE_YEAR,
 )
-from logger import get_logger
-from wiki import df_to_uscensus, df_to_wikitable
+from src.logger import get_logger
+from src.wiki import df_to_uscensus, df_to_wikitable
 
 logger = get_logger(__name__)
 
