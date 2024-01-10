@@ -7,7 +7,7 @@ api_key_location = "api_key.toml"
 
 
 CENSUS_GOV_2020_REFRENCE_URL = (
-    "https://data.census.gov/table/DECENNIALPL2020.P1?g=160XX00US{state_fips}{place_id}"
+    "https://data.census.gov/table/DECENNIALPL2020?g=160XX00US{state_fips}{place_id}"
 )
 
 ACS_ESTIMATE_REFERENCE_URL = (
