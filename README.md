@@ -1,25 +1,28 @@
 # Pull US Census Data and Transform to Wikipedia Tables
 
-
 ## Install
+
 `python3 -m venv .virtualenv/` Create Python Virtual Environment
 `source .virtualenv/bin/activate` activate virtual environment
-`pip install requirements.txt` Install Requirements
+`pip install -r requirements.txt` Install Requirements
 
-## Run:
-`python main.py -s CA -p 'Los Angeles city' -r` 
+## Run
 
-### CLIs:
-`-s` required: State abbreviation
-`-p` requied: Place name, must be exact, will output list of examples. Since `Los Angeles` matches mutliple place names, it will prompt you to choose `Los Angeles city` or `Los Angeles county`
-`-r` optional: Outputs a table of race related changes for the 2000, 2010 and 2020 Census 
+`python main.py -s CA -p 'Los Angeles city' -r`
 
-## Outputs:
+### CLIs
+
+- `-s` required: State abbreviation
+- `-p` requied: Place name, must be exact, will output list of examples. Since `Los Angeles` matches mutliple place names, it will prompt you to choose `Los Angeles city` or `Los Angeles county`
+- `-r` optional: Outputs a table of race related changes for the 2000, 2010 and 2020 Census 
+
+## Outputs
 
 ### 2000, 2010, 2020 & 202x estimate
 
-Text of example: 
-```
+Text of example:
+
+```Wiki
 {{US Census population
 |2000= 3694820
 |2010= 3792621
@@ -30,12 +33,11 @@ Text of example:
 |footnote=US Census<ref name="DecennialCensus2020">{{cite web|url=https://data.census.gov/table/DECENNIALPL2020?g=160XX00US0644000|title=Census of Population and Housing|publisher=Census.gov}}</ref>
 ```
 
-
 ### Race & Ethnicities table
 
-
 A wikitext table formatted for copy-paste to wikipedia
-```
+
+```Wiki
  {| class="wikitable sortable collapsible" style="font-size: 90%;"   
 |+ Race and Ethnicity
 ! Racial and ethnic composition
