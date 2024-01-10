@@ -8,13 +8,12 @@
 
 ## Run
 
-`python main.py -s CA -p 'Los Angeles city' -r`
+`python main.py -s CA -p 'Los Angeles city'`
 
 ### CLIs
 
 - `-s` required: State abbreviation
 - `-p` requied: Place name, must be exact, will output list of examples. Since `Los Angeles` matches mutliple place names, it will prompt you to choose `Los Angeles city` or `Los Angeles county`
-- `-r` optional: Outputs a table of race related changes for the 2000, 2010 and 2020 Census 
 
 ## Outputs
 

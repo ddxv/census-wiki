@@ -11,13 +11,6 @@ def manage_cli_args() -> argparse.Namespace:
     """Set command line interface arguments for running file."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-r",
-        "--race-demographics",
-        action="store_true",
-        help="",
-        default=False,
-    )
-    parser.add_argument(
         "-s",
         "--state-abbr",
         action="store",
@@ -37,17 +30,14 @@ def main(cli_args: argparse.Namespace) -> None:
     """Print Wiki tables based on command line arguments."""
     logger.info("main started", extra={"myargs": cli_args})
 
-    if cli_args.race_demographics:
-        table, pop_table = make_demographic_tables(cli_args)
-        copy_pastable_msg = ""
-        copy_pastable_msg += "------HISTORICAL POPULATION COPY BELOW------\n"
-        copy_pastable_msg += pop_table
-        copy_pastable_msg += "\n\n"
-        copy_pastable_msg += table
-        copy_pastable_msg += "------RACE DEMOGRAPHICS COPY ABOVE------\n"
-        logger.info(copy_pastable_msg)
-    else:
-        logger.error("Missing args")
+    table, pop_table = make_demographic_tables(cli_args)
+    copy_pastable_msg = ""
+    copy_pastable_msg += "\n------HISTORICAL POPULATION COPY BELOW------\n"
+    copy_pastable_msg += pop_table
+    copy_pastable_msg += "\n\n"
+    copy_pastable_msg += table
+    copy_pastable_msg += "\n\n------RACE DEMOGRAPHICS COPY ABOVE------\n"
+    logger.info(copy_pastable_msg)
 
 
 if __name__ == "__main__":
