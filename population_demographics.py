@@ -155,7 +155,7 @@ def make_demographic_tables(args: argparse.Namespace) -> tuple[str, str]:
     places = [x for x in place_list if place_name.lower() in x["NAME"].lower()]
     if len(places) == 1:
         place_id = places[0]["place"]
-        logger.info(f"Found place {places[0]}, place_id: {place_id}}")
+        logger.info(f"Found place {places[0]}, place_id: {place_id}")
     else:
         error = f'Place needs to be more specific. Choose one of places matched: {[place["NAME"] for place in places]}'
         raise ValueError(error)
