@@ -19,6 +19,8 @@
 
 ### 2000, 2010, 2020 & 202x estimate
 
+[<img src="/static/census_table_example.png" width="500"/>](/static/census_table_example.png)
+
 Text of example:
 
 ```Wiki
