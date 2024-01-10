@@ -40,7 +40,7 @@ Text of example:
 
 This table shows changes in various populations over the past 3 Census:
 
-[<img src="/static/race_ethnicity_table_example.png"/>](/static/race_ethnicity_table_example.png)
+[<img src="/static/race_ethnicity_table_example.png" width="400"/>](/static/race_ethnicity_table_example.png)
 
 Text of example:
 ```Wiki
