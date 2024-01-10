@@ -7,11 +7,33 @@
 `pip install requirements.txt` Install Requirements
 
 ## Run:
+`python main.py -s CA -p 'Los Angeles city' -r` 
 
-### Race population percentages:
-`$ python main.py -s CA -p 'Los Angeles'` 
+### CLIs:
+`-s` required: State abbreviation
+`-p` requied: Place name, must be exact, will output list of examples. Since `Los Angeles` matches mutliple place names, it will prompt you to choose `Los Angeles city` or `Los Angeles county`
+`-r` optional: Outputs a table of race related changes for the 2000, 2010 and 2020 Census 
 
-### Output:
+## Outputs:
+
+### 2000, 2010, 2020 & 202x estimate
+
+Text of example: 
+```
+{{US Census population
+|2000= 3694820
+|2010= 3792621
+|2020= 3898747
+|estyear=2022
+|estimate=3881041
+|estref=<ref name="acs2022est">{{cite web|url=https://data.census.gov/table?g=1600000US0644000&y=2022|title=ACS Survey Population Estimate 2022}}</ref>
+|footnote=US Census<ref name="DecennialCensus2020">{{cite web|url=https://data.census.gov/table/DECENNIALPL2020?g=160XX00US0644000|title=Census of Population and Housing|publisher=Census.gov}}</ref>
+```
+
+
+### Race & Ethnicities table
+
+
 A wikitext table formatted for copy-paste to wikipedia
 ```
  {| class="wikitable sortable collapsible" style="font-size: 90%;"   
