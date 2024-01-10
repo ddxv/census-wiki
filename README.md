@@ -2,9 +2,11 @@
 
 ## Install
 
-`python3 -m venv .virtualenv/` Create Python Virtual Environment
-`source .virtualenv/bin/activate` activate virtual environment
-`pip install -r requirements.txt` Install Requirements
+First, get yourself a [Census API key](https://api.census.gov/data/key_signup.html). Store this key in the same directory as main.py as `api_key.toml` based on the format of the `example_key_api.toml`.
+
+- `python3 -m venv .virtualenv/` Create Python Virtual Environment
+- `source .virtualenv/bin/activate` activate virtual environment
+- `pip install -r requirements.txt` Install Requirements
 
 ## Run
 
