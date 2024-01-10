@@ -19,7 +19,9 @@
 
 ### 2000, 2010, 2020 & 202x estimate
 
-[<img src="/static/census_table_example.png" width="500"/>](/static/census_table_example.png)
+This is the main census data on most place pages. This should not be completely copied unless the page does not yet have any census table. Best practice is to use the part you need, which often is the 2020 and estimate sections.
+
+[<img src="/static/census_table_example.png" width="250"/>](/static/census_table_example.png)
 
 Text of example:
 
@@ -36,8 +38,11 @@ Text of example:
 
 ### Race & Ethnicities table
 
-A wikitext table formatted for copy-paste to wikipedia
+This table shows changes in various populations over the past 3 Census:
 
+[<img src="/static/race_ethnicity_example.png" width="250"/>](/static/race_ethnicity_example.png)
+
+Text of example:
 ```Wiki
  {| class="wikitable sortable collapsible" style="font-size: 90%;"   
 |+ Race and Ethnicity
