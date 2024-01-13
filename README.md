@@ -2,7 +2,7 @@
 
 ## Install
 
-First, get yourself a [Census API key](https://api.census.gov/data/key_signup.html). Store this key in the same directory as main.py as `api_key.toml` based on the format of the `example_key_api.toml`.
+First, get yourself a [US Census.gov API key](https://api.census.gov/data/key_signup.html). Store this key in the same directory as main.py as `api_key.toml` based on the format of the `example_key_api.toml`. Note the link requires a US based IP address, VPNs will work.
 
 - `python3 -m venv .virtualenv/` Create Python Virtual Environment
 - `source .virtualenv/bin/activate` activate virtual environment
